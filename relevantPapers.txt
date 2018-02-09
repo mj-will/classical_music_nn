@@ -1,0 +1,14 @@
+A tutorial on Deep learning for Music Information Retrieval:
+https://arxiv.org/pdf/1709.04396.pdf
+
+
+ON THE POTENTIAL OF SIMPLE FRAMEWISE APPROACHES TO PIANO TRANSCRIPTION:
+(added because they use log-spectograms for representation)
+
+https://arxiv.org/pdf/1612.05153.pdf
+
+
+Learning temporal features using a deep neural network and its application to music genre classification:
+(added because it is similar to what we are trying to do)
+
+http://m.mr-pc.org/ismir16/website/articles/159_Paper.pdf
