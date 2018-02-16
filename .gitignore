@@ -108,3 +108,6 @@ data/*
 
 #test files
 test*.py
+
+# ignore weights
+best_weights*

@@ -11,9 +11,9 @@ import numpy as np
 
 from scipy.io import wavfile
 
-from keras.layers import Input, Conv1D, MaxPool1D, Dense
+from keras.layers import Input, Conv2D, MaxPool2D, Dense, Flatten
 from keras.models import Sequential
-from keras.optimizers import Nadam
+from keras.optimizers import Nadam, SGD
 from keras.callbacks import ReduceLROnPlateau, ModelCheckpoint
 from keras.preprocessing.image import ImageDataGenerator, array_to_img, img_to_array, load_img
 
@@ -25,37 +25,39 @@ np.random.seed(1337)
 class args:
     def __init__(self):
         self.Nepochs = 100
-        self.batch_size = 64
-        self.Nclasses = 3
+        self.batch_size = 8
+        self.Nclasses = 2
 
 
 def build_model(args, input_shape):
 
     model = Sequential()
 
-    model.add(Conv1D(
+    model.add(Conv2D(
         input_shape=input_shape,
-        filters=32,
-        kernel_size=16,
+        filters=16,
+        kernel_size=(7,7),
         activation='relu'
     ))
 
-    model.add(MaxPool1D(
-        pool_size=4
+    model.add(MaxPool2D(
+        pool_size=(4,4)
     ))
 
-    model.add(Conv1D(
-        filters=32,
-        kernel_size=16,
+    model.add(Conv2D(
+        filters=16,
+        kernel_size=(7,7),
         activation='relu'
     ))
 
-    model.add(MaxPool1D(
-        pool_size=4
+    model.add(MaxPool2D(
+        pool_size=(4,4)
     ))
+
+    model.add(Flatten())
 
     model.add(Dense(
-        units=256
+        units=64
     ))
 
     model.add(Dense(
@@ -65,8 +67,8 @@ def build_model(args, input_shape):
     return model
 
 
-def optimizer():
-    return Nadam(lr=0.002, beta_1=0.9, beta_2=0.999, epsilon=None, schedule_decay=0.004)
+# def optimizer():
+#     return Nadam(lr=0.002, beta_1=0.9, beta_2=0.999, epsilon=None, schedule_decay=0.004)
 
 
 def main(args):
@@ -82,7 +84,7 @@ def main(args):
 
     # split data if necessary
     split_dataset_test_train(all_data, train_data, test_data, test_pct)
-    
+
     # load an image to use as a reference
     img = load_img('data/raw_data30/chopin/chopin0.png')
     x = img_to_array(img)
@@ -109,15 +111,15 @@ def main(args):
     )
 
     # input shape
-    input_shape = (None,) + x.shape[1:]
+    input_shape = x.shape[1:]
 
     # build network
     model = build_model(args, input_shape=input_shape)
 
     # compile network
     model.compile(
-        loss='catergorical_crossentropy',
-        optimizer=optimizer,
+        loss='categorical_crossentropy',
+        optimizer=SGD(),#Nadam(lr=0.002, beta_1=0.9, beta_2=0.999, epsilon=1e-8, schedule_decay=0.004),
         metrics=['accuracy']
     )
     # print summary
@@ -126,12 +128,14 @@ def main(args):
     # callbacks for network
     modelCheck = ModelCheckpoint('./best_weights.h5', monitor='loss', save_best_only=True, save_weights_only=True)
 
+
     # fit model
     history = model.fit_generator(
         train_generator,
         steps_per_epoch=len(train_generator.filenames) // args.batch_size,
-        epochs=args.epochs,
-        callbacks=[modelCheck])
+        epochs=args.Nepochs,
+        callbacks=[modelCheck]
+    )
 
     # load best model
     model.load_weights('./best_weights.h5')
