@@ -17,6 +17,8 @@ from keras.optimizers import Nadam
 from keras.callbacks import ReduceLROnPlateau, ModelCheckpoint
 from keras.preprocessing.image import ImageDataGenerator, array_to_img, img_to_array, load_img
 
+from utils import split_dataset_test_train
+
 np.random.seed(1337)
 
 # class that contains arguments for network
@@ -69,6 +71,18 @@ def optimizer():
 
 def main(args):
 
+
+    # path to all data
+    all_data = './data/raw_data30'
+    # path to training and test data
+    train_data = './data/data30/train'
+    test_data = './data/data30/test'
+    # percentage of data to use for testing
+    test_pct = 0.2
+
+    # split data if necessary
+    split_dataset_test_train(all_data, train_data, test_data, test_pct)
+    
     # load an image to use as a reference
     img = load_img('data/raw_data30/chopin/chopin0.png')
     x = img_to_array(img)
