@@ -94,6 +94,9 @@ ENV/
 # Rope project settings
 .ropeproject
 
+# Pychmarm project settings
+.idea/
+
 # mkdocs documentation
 /site
 
@@ -102,3 +105,6 @@ ENV/
 
 # data
 data/*
+
+#test files
+test*.py
