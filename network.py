@@ -25,7 +25,7 @@ np.random.seed(1337)
 class args:
     def __init__(self):
         self.Nepochs = 100
-        self.batch_size = 8
+        self.batch_size = 16
         self.Nclasses = 2
 
 
@@ -41,23 +41,40 @@ def build_model(args, input_shape):
     ))
 
     model.add(MaxPool2D(
-        pool_size=(4,4)
+        pool_size=(2,2)
     ))
 
     model.add(Conv2D(
-        filters=16,
-        kernel_size=(7,7),
+        filters=32,
+        kernel_size=(5,5),
         activation='relu'
     ))
 
     model.add(MaxPool2D(
-        pool_size=(4,4)
+        pool_size=(2,2)
+    ))
+
+    model.add(Conv2D(
+        filters=64,
+        kernel_size=(3,3),
+        activation='relu'
+    ))
+
+    model.add(Conv2D(
+        filters=64,
+        kernel_size=(3,3),
+        activation='relu'
+    ))
+
+
+    model.add(MaxPool2D(
+        pool_size=(2,2)
     ))
 
     model.add(Flatten())
 
     model.add(Dense(
-        units=64
+        units=128
     ))
 
     model.add(Dense(
@@ -83,12 +100,13 @@ def main(args):
     test_pct = 0.2
 
     # split data if necessary
-    split_dataset_test_train(all_data, train_data, test_data, test_pct)
+    #split_dataset_test_train(all_data, train_data, test_data, test_pct)
 
     # load an image to use as a reference
-    img = load_img('data/raw_data30/chopin/chopin0.png')
+    img = load_img('./data/raw_data30/chopin/chopin1.png')
     x = img_to_array(img)
     x = x.reshape((1,) + x.shape)
+    print(x.shape)
     # get shape of image
     img_shape = x.shape[1:3]
 
@@ -97,14 +115,14 @@ def main(args):
 
     # generator to read in images from directories
     train_generator = datagen.flow_from_directory(
-        './data/data30/train',
+        '{0}'.format(train_data),
         target_size=(img_shape),
         batch_size=args.batch_size,
         class_mode='categorical'
     )
 
     test_generator = datagen.flow_from_directory(
-        './data/data30/test',
+        '{0}'.format(test_data),
         target_size=(img_shape),
         batch_size=args.batch_size,
         class_mode='categorical'
@@ -119,7 +137,7 @@ def main(args):
     # compile network
     model.compile(
         loss='categorical_crossentropy',
-        optimizer=SGD(),#Nadam(lr=0.002, beta_1=0.9, beta_2=0.999, epsilon=1e-8, schedule_decay=0.004),
+        optimizer=Nadam(lr=0.002, beta_1=0.9, beta_2=0.999, epsilon=1e-8, schedule_decay=0.004),
         metrics=['accuracy']
     )
     # print summary
